@@ -1,6 +1,6 @@
 # native-huron
 
-A set of utility classes to make writing native addons easier. The majority of the code is from the [zcbenz's](https://github.com/zcbenz) [native-mate](https://github.com/zcbenz/native-mate) library. See `tests` folder for example. Current list of classes:
+A set of utility classes to make writing native addons easier. The majority of the code is from [zcbenz's](https://github.com/zcbenz) [native-mate](https://github.com/zcbenz/native-mate) library. See `tests` folder for example. Current list of classes:
 - **Converter:** Converting from primitive and basic C++ variables to V8 variables and from V8 variables to C++ variables.
 - **Dictionary:** Handle dictionaries that represents a Javascript Object.
 - **PersistentDictionary:** Same as Dictionaries but stored on the heap.
