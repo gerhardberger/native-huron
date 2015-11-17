@@ -2,14 +2,16 @@
 #define FOO_H
 
 #include <nan.h>
+#include <native_huron/emitter.h>
 
-class Foo : public Nan::ObjectWrap {
+class Foo : public huron::Emitter {
 public:
   static void Init(v8::Local<v8::Object> exports);
 
   static NAN_METHOD(New);
   static NAN_METHOD(Bar);
 
+  void task ();
   //static NAN_METHOD(nocturne);
 
 private:

@@ -1,6 +1,10 @@
 #include "foo.h"
+
+#include <thread>
+
 #include <native_huron/converter.h>
 #include <native_huron/dictionary.h>
+#include <native_huron/emitter.h>
 
 Nan::Persistent<v8::Function> Foo::constructor;
 
@@ -17,6 +21,8 @@ void Foo::Init(v8::Local<v8::Object> exports) {
 
   // Prototype
   Nan::SetPrototypeMethod(tpl, "bar", Bar);
+
+  Nan::SetPrototypeMethod(tpl, "on", huron::Emitter::On);
 
   constructor.Reset(tpl->GetFunction());
   exports->Set(Nan::New("Foo").ToLocalChecked(), tpl->GetFunction());
@@ -40,8 +46,16 @@ void nocturne(const v8::FunctionCallbackInfo<v8::Value> &info) {
     , "Pretty music playing!"));
 }
 
+void Foo::task() {
+  int j = 2;
+
+  Emit("sus", [=](huron::Dictionary &dict) {
+    dict.Set("num", j);
+  });
+}
+
 NAN_METHOD(Foo::Bar) {
-  //Foo *foo = ObjectWrap::Unwrap<Foo>(info.Holder());
+  Foo *foo = ObjectWrap::Unwrap<Foo>(info.Holder());
   v8::Isolate *isolate = info.GetIsolate();
 
   huron::Dictionary dict = huron::Dictionary::CreateEmpty(isolate);
@@ -51,9 +65,10 @@ NAN_METHOD(Foo::Bar) {
   dict.SetMethod("play", &nocturne);
 
   v8::Local<v8::Value> comp;
-  if (dict.Get("text", &comp)) {
+  if (dict.Get("text", &comp)) { }
 
-  }
+  std::thread t(std::bind(&Foo::task, foo));
+  t.detach();
 
   info.GetReturnValue().Set(huron::ConvertToV8(isolate, dict));
 }
