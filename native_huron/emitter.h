@@ -3,7 +3,7 @@
 
 #include <map>
 #include <vector>
-#include <iostream>
+#include <functional>
 
 #include <nan.h>
 
