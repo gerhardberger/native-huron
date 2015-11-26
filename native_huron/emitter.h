@@ -106,7 +106,7 @@ class Emitter : public Nan::ObjectWrap {
     data.self->Emit(Nan::New(data.event_name).ToLocalChecked()
       , huron::ConvertToV8(iso, dict));
 
-    delete handle;
+    //delete handle; TODO: Consider the deletion of this.
   }
 
  private:
