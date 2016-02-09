@@ -48,17 +48,7 @@ class Emitter : public Nan::ObjectWrap {
     }
   }
 
-  template<typename... Args>
-  void Emit (std::string eventName, const Args&... args) {
-    Emit(Nan::New(eventName).ToLocalChecked(), args...);
-  }
-
-  template<typename... Args>
-  void Emit (const char *eventName, const Args&... args) {
-    Emit(Nan::New(eventName).ToLocalChecked(), args...);
-  }
-
-  void Emit (std::string eventName, std::function<void(huron::Dictionary& dict)> fn) {
+  void Emit (std::string eventName, std::function<void(huron::Dictionary&)> fn) {
     uv_async_t *async = new uv_async_t();
     uv_async_init(uv_default_loop()
       , async
@@ -73,7 +63,7 @@ class Emitter : public Nan::ObjectWrap {
 		uv_async_send(async);
   }
 
-  void Emit (const char *eventName, std::function<void(huron::Dictionary& dict)> fn) {
+  void Emit (const char *eventName, std::function<void(huron::Dictionary&)> fn) {
     Emit(std::string(eventName), fn);
   }
 
