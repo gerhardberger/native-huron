@@ -12,8 +12,6 @@
 #include "native_huron/compat.h"
 #include <v8.h>
 
-#include <iostream>
-
 namespace huron {
 
 template<typename KeyType>
