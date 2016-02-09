@@ -31,7 +31,7 @@ class Emitter : public Nan::ObjectWrap {
   };
 
   template<typename... Args>
-  void Emit (v8::Local<v8::Value> eventName, const Args&... args) {
+  void EmitJS (v8::Local<v8::Value> eventName, const Args&... args) {
     v8::String::Utf8Value name_(eventName->ToString());
     std::string name = std::string(*name_);
 
@@ -91,7 +91,7 @@ class Emitter : public Nan::ObjectWrap {
     huron::Dictionary dict = huron::Dictionary::CreateEmpty(iso);
     data.handler(dict);
 
-    data.self->Emit(Nan::New(data.event_name).ToLocalChecked()
+    data.self->EmitJS(Nan::New(data.event_name).ToLocalChecked()
       , huron::ConvertToV8(iso, dict));
 
     //delete handle; TODO: Consider the deletion of this.
