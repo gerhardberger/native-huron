@@ -21,6 +21,7 @@ void Foo::Init(v8::Local<v8::Object> exports) {
 
   // Prototype
   Nan::SetPrototypeMethod(tpl, "bar", Bar);
+  Nan::SetPrototypeMethod(tpl, "cppOn", CppOn);
 
   Nan::SetPrototypeMethod(tpl, "on", huron::Emitter::On);
 
@@ -70,5 +71,18 @@ NAN_METHOD(Foo::Bar) {
   std::thread t(std::bind(&Foo::task, foo));
   t.detach();
 
+  foo->Emit("jingo");
+
   info.GetReturnValue().Set(huron::ConvertToV8(isolate, dict));
+}
+
+NAN_METHOD(Foo::CppOn) {
+  Foo *foo = ObjectWrap::Unwrap<Foo>(info.Holder());
+
+  v8::String::Utf8Value name(info[0]->ToString());
+  std::string eventName = std::string(*name);
+
+  v8::Local<v8::Function> cb = info[1].As<v8::Function>();
+
+  foo->On(eventName, cb);
 }

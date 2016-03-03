@@ -5,6 +5,10 @@ foo.on('sus', function (event) {
   console.log(event.num)
 })
 
+foo.cppOn('jingo', function () {
+  console.log('Listened on CPP')
+})
+
 console.log(foo.bar())
 setTimeout(function () {
   console.log(foo.bar())

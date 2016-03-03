@@ -102,3 +102,6 @@ Emits the `eventName` event handlers with the `dict` object as a parameter. So y
 
 ##### Emit(const char* eventName, lambda(Dictionary &dict))
 Alias for the above method.
+
+##### On(std::string eventName, Local<Function> callback)
+This *member method* lets you set listeners from c++ code.

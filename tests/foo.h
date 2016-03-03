@@ -10,6 +10,7 @@ public:
 
   static NAN_METHOD(New);
   static NAN_METHOD(Bar);
+  static NAN_METHOD(CppOn);
 
   void task ();
   //static NAN_METHOD(nocturne);

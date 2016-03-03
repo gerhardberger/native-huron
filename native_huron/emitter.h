@@ -79,6 +79,21 @@ class Emitter : public Nan::ObjectWrap {
     Emit(std::string(eventName), fn);
   }
 
+  static void AsyncEmit(uv_async_t *handle) {
+    Nan::HandleScope scope;
+
+    AsyncData data = *((AsyncData*) handle->data);
+
+    v8::Isolate *iso = v8::Isolate::GetCurrent();
+    huron::Dictionary dict = huron::Dictionary::CreateEmpty(iso);
+    data.handler(dict);
+
+    data.self->Emit(Nan::New(data.event_name).ToLocalChecked()
+      , huron::ConvertToV8(iso, dict));
+
+    //delete handle; TODO: Consider the deletion of this.
+  }
+
   static void On (const Nan::FunctionCallbackInfo<v8::Value>& info) {
     if (!info[0]->IsString() || !info[1]->IsFunction()) return;
 
@@ -94,19 +109,11 @@ class Emitter : public Nan::ObjectWrap {
     emitter->m[eventName].push_back(persistent_cb);
   }
 
-  static void AsyncEmit(uv_async_t *handle) {
-    Nan::HandleScope scope;
+  void On (std::string eventName, const v8::Local<v8::Function> cb) {
+    Nan::Persistent<v8::Function> persistent_cb;
+    persistent_cb.Reset(cb);
 
-    AsyncData data = *((AsyncData*) handle->data);
-
-    v8::Isolate *iso = v8::Isolate::GetCurrent();
-    huron::Dictionary dict = huron::Dictionary::CreateEmpty(iso);
-    data.handler(dict);
-
-    data.self->Emit(Nan::New(data.event_name).ToLocalChecked()
-      , huron::ConvertToV8(iso, dict));
-
-    //delete handle; TODO: Consider the deletion of this.
+    this->m[eventName].push_back(persistent_cb);
   }
 
  private:
