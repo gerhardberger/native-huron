@@ -10,6 +10,7 @@
 #include <set>
 
 #include "native_huron/compat.h"
+#include <node.h>
 #include <v8.h>
 
 namespace huron {

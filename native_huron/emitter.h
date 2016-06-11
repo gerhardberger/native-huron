@@ -35,7 +35,7 @@ class Emitter : public Nan::ObjectWrap {
     v8::String::Utf8Value name_(eventName->ToString());
     std::string name = std::string(*name_);
 
-    if (m[name].empty()) return;
+    if (m[name].empty() && o[name].empty()) return;
 
     std::vector<v8::Local<v8::Value> > converted_args = { args..., };
 
@@ -46,6 +46,15 @@ class Emitter : public Nan::ObjectWrap {
         , Nan::New(*it)
         , converted_args.size(), &converted_args.front());
     }
+
+    for (std::vector<internal::CopyablePersistentType>::iterator
+      it = o[name].begin(); it != o[name].end(); ++it) {
+        node::MakeCallback(
+          v8::Isolate::GetCurrent(), Nan::GetCurrentContext()->Global()
+        , Nan::New(*it)
+        , converted_args.size(), &converted_args.front());
+    }
+    o[name].clear();
   }
 
   template<typename... Args>
@@ -94,6 +103,48 @@ class Emitter : public Nan::ObjectWrap {
     //delete handle; TODO: Consider the deletion of this.
   }
 
+  static void Off (const Nan::FunctionCallbackInfo<v8::Value>& info) {
+    if (!info[0]->IsString() || !info[1]->IsFunction()) return;
+
+    Emitter *emitter = ObjectWrap::Unwrap<Emitter>(info.Holder());
+
+    v8::String::Utf8Value name(info[0]->ToString());
+    v8::Local<v8::Function> cb = info[1].As<v8::Function>();
+    std::string eventName = std::string(*name);
+
+    Nan::Persistent<v8::Function> persistent_cb;
+    persistent_cb.Reset(cb);
+
+    for (std::vector<internal::CopyablePersistentType>::iterator
+      it = emitter->m[eventName].begin(); it != emitter->m[eventName].end();) {
+        if(Nan::New(*it) == persistent_cb) emitter->m[eventName].erase(it);
+        else it++;
+    }
+
+    for (std::vector<internal::CopyablePersistentType>::iterator
+      it = emitter->o[eventName].begin(); it != emitter->o[eventName].end();) {
+        if(Nan::New(*it) == persistent_cb) emitter->o[eventName].erase(it);
+        else it++;
+    }
+  }
+
+  void Off (std::string eventName, const v8::Local<v8::Function> cb) {
+    Nan::Persistent<v8::Function> persistent_cb;
+    persistent_cb.Reset(cb);
+
+    for (std::vector<internal::CopyablePersistentType>::iterator
+      it = this->m[eventName].begin(); it != this->m[eventName].end();) {
+        if(Nan::New(*it) == persistent_cb) this->m[eventName].erase(it);
+        else it++;
+    }
+
+    for (std::vector<internal::CopyablePersistentType>::iterator
+      it = this->o[eventName].begin(); it != this->o[eventName].end();) {
+        if(Nan::New(*it) == persistent_cb) this->o[eventName].erase(it);
+        else it++;
+    }
+  }
+
   static void On (const Nan::FunctionCallbackInfo<v8::Value>& info) {
     if (!info[0]->IsString() || !info[1]->IsFunction()) return;
 
@@ -116,8 +167,31 @@ class Emitter : public Nan::ObjectWrap {
     this->m[eventName].push_back(persistent_cb);
   }
 
+  static void Once (const Nan::FunctionCallbackInfo<v8::Value>& info) {
+    if (!info[0]->IsString() || !info[1]->IsFunction()) return;
+
+    Emitter *emitter = ObjectWrap::Unwrap<Emitter>(info.Holder());
+
+    v8::String::Utf8Value name(info[0]->ToString());
+    v8::Local<v8::Function> cb = info[1].As<v8::Function>();
+    std::string eventName = std::string(*name);
+
+    Nan::Persistent<v8::Function> persistent_cb;
+    persistent_cb.Reset(cb);
+
+    emitter->o[eventName].push_back(persistent_cb);
+  }
+
+  void Once (std::string eventName, const v8::Local<v8::Function> cb) {
+    Nan::Persistent<v8::Function> persistent_cb;
+    persistent_cb.Reset(cb);
+
+    this->o[eventName].push_back(persistent_cb);
+  }
+
  private:
   std::map<std::string, std::vector<internal::CopyablePersistentType> > m;
+  std::map<std::string, std::vector<internal::CopyablePersistentType> > o;
 };
 
 }  // namespace huron

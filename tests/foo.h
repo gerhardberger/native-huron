@@ -11,6 +11,8 @@ public:
   static NAN_METHOD(New);
   static NAN_METHOD(Bar);
   static NAN_METHOD(CppOn);
+  static NAN_METHOD(CppOff);
+  static NAN_METHOD(CppOnce);
 
   void task ();
   //static NAN_METHOD(nocturne);

@@ -105,3 +105,9 @@ Alias for the above method.
 
 ##### On(std::string eventName, Local<Function> callback)
 This *member method* lets you set listeners from c++ code.
+
+##### Off(std::string eventName, Local<Function> callback)
+This *member method* lets you remove listeners from c++ code.
+
+##### Once(std::string eventName, Local<Function> callback)
+This *member method* lets you set listeners from c++ code that fire only once.

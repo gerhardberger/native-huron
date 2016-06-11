@@ -22,6 +22,8 @@ void Foo::Init(v8::Local<v8::Object> exports) {
   // Prototype
   Nan::SetPrototypeMethod(tpl, "bar", Bar);
   Nan::SetPrototypeMethod(tpl, "cppOn", CppOn);
+  Nan::SetPrototypeMethod(tpl, "cppOff", CppOff);
+  Nan::SetPrototypeMethod(tpl, "cppOnce", CppOnce);
 
   Nan::SetPrototypeMethod(tpl, "on", huron::Emitter::On);
 
@@ -85,4 +87,26 @@ NAN_METHOD(Foo::CppOn) {
   v8::Local<v8::Function> cb = info[1].As<v8::Function>();
 
   foo->On(eventName, cb);
+}
+
+NAN_METHOD(Foo::CppOff) {
+  Foo *foo = ObjectWrap::Unwrap<Foo>(info.Holder());
+
+  v8::String::Utf8Value name(info[0]->ToString());
+  std::string eventName = std::string(*name);
+
+  v8::Local<v8::Function> cb = info[1].As<v8::Function>();
+
+  foo->Off(eventName, cb);
+}
+
+NAN_METHOD(Foo::CppOnce) {
+  Foo *foo = ObjectWrap::Unwrap<Foo>(info.Holder());
+
+  v8::String::Utf8Value name(info[0]->ToString());
+  std::string eventName = std::string(*name);
+
+  v8::Local<v8::Function> cb = info[1].As<v8::Function>();
+
+  foo->Once(eventName, cb);
 }

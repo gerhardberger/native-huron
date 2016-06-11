@@ -5,6 +5,7 @@
 #include "native_huron/converter.h"
 
 #include "native_huron/compat.h"
+#include <node.h>
 #include <v8.h>
 
 using v8::Array;
