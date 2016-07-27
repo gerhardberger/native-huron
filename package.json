@@ -1,6 +1,6 @@
 {
   "name": "native-huron",
-  "version": "0.0.7",
+  "version": "0.1.1",
   "description": "Utility classes for writing native addons for node.js.",
   "main": "include_dirs.js",
   "repository": {
@@ -8,7 +8,7 @@
     "url": "git://github.com/gerhardberger/native-huron.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/test.js"
   },
   "keywords": [
     "native",
