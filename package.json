@@ -1,6 +1,6 @@
 {
   "name": "native-huron",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Utility classes for writing native addons for node.js.",
   "main": "include_dirs.js",
   "repository": {
