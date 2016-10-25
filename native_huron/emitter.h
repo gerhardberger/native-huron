@@ -29,6 +29,10 @@ class Emitter : public Nan::ObjectWrap {
   	std::string event_name;
     std::function<void(huron::Dictionary&)> handler;
   };
+  
+  static void uv_free_handle(uv_handle_t* handle) {
+    delete handle;
+  }
 
   template<typename... Args>
   void Emit (v8::Local<v8::Value> eventName, const Args&... args) {
@@ -100,7 +104,7 @@ class Emitter : public Nan::ObjectWrap {
     data.self->Emit(Nan::New(data.event_name).ToLocalChecked()
       , huron::ConvertToV8(iso, dict));
 
-    //delete handle; TODO: Consider the deletion of this.
+    uv_close((uv_handle_t*)handle, &Emitter::uv_free_handle);
   }
 
   static void Off (const Nan::FunctionCallbackInfo<v8::Value>& info) {
