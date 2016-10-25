@@ -33,7 +33,7 @@ bool Converter<bool>::FromV8(Isolate* isolate, Local<Value> val, bool* out) {
   return true;
 }
 
-#if !defined(OS_LINUX)
+#if !defined(linux)
 Local<Value> Converter<unsigned long>::ToV8(Isolate* isolate,
                                              unsigned long val) {
   return HURON_INTEGER_NEW(isolate, val);
