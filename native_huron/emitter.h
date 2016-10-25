@@ -30,9 +30,7 @@ class Emitter : public Nan::ObjectWrap {
     std::function<void(huron::Dictionary&)> handler;
   };
   
-  static void uv_free_handle(uv_handle_t* handle) {
-    delete handle;
-  }
+  static void uv_free_handle(uv_handle_t* handle) {}
 
   template<typename... Args>
   void Emit (v8::Local<v8::Value> eventName, const Args&... args) {
