@@ -129,6 +129,11 @@ class Emitter : public Nan::ObjectWrap {
         else it++;
     }
   }
+  
+  static void RemoveEventListener (
+      const Nan::FunctionCallbackInfo<v8::Value>& info) {
+    Off(info);
+  }
 
   void Off (std::string eventName, const v8::Local<v8::Function> cb) {
     Nan::Persistent<v8::Function> persistent_cb;
@@ -146,6 +151,11 @@ class Emitter : public Nan::ObjectWrap {
         else it++;
     }
   }
+  
+  void RemoveEventListener (std::string eventName, 
+                            const v8::Local<v8::Function> cb) {
+    Off(eventName, cb);
+  }
 
   static void On (const Nan::FunctionCallbackInfo<v8::Value>& info) {
     if (!info[0]->IsString() || !info[1]->IsFunction()) return;
@@ -161,12 +171,22 @@ class Emitter : public Nan::ObjectWrap {
 
     emitter->m[eventName].push_back(persistent_cb);
   }
+  
+  static void AddEventListener (
+      const Nan::FunctionCallbackInfo<v8::Value>& info) {
+    On(info);
+  }
 
   void On (std::string eventName, const v8::Local<v8::Function> cb) {
     Nan::Persistent<v8::Function> persistent_cb;
     persistent_cb.Reset(cb);
 
     this->m[eventName].push_back(persistent_cb);
+  }
+  
+  void AddEventListener (std::string eventName,
+                         const v8::Local<v8::Function> cb) {
+    On(eventName, cb);
   }
 
   static void Once (const Nan::FunctionCallbackInfo<v8::Value>& info) {
@@ -189,6 +209,41 @@ class Emitter : public Nan::ObjectWrap {
     persistent_cb.Reset(cb);
 
     this->o[eventName].push_back(persistent_cb);
+  }
+  
+  void RemoveAllListeners (std::string eventName) {
+    if (this->m.find(eventName) != this->m.end()) {
+      this->m.erase(eventName);
+    }
+    
+    if (this->o.find(eventName) != this->o.end()) {
+      this->o.erase(eventName);
+    }
+  }
+  
+  static void RemoveAllListeners (
+      const Nan::FunctionCallbackInfo<v8::Value>& info) {
+    Emitter *emitter = ObjectWrap::Unwrap<Emitter>(info.Holder());
+    if (!info[0]->IsString()) {
+      emitter->m.clear();
+      emitter->o.clear();
+    } else {
+      v8::String::Utf8Value name(info[0]->ToString());
+      std::string eventName = std::string(*name);
+  
+      if (emitter->m.find(eventName) != emitter->m.end()) {
+        emitter->m.erase(eventName);
+      }
+      
+      if (emitter->o.find(eventName) != emitter->o.end()) {
+        emitter->o.erase(eventName);
+      }
+    }
+  }
+  
+  void RemoveAllListeners () {
+    m.clear();
+    o.clear();
   }
 
  private:
