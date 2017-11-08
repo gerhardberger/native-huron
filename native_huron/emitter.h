@@ -40,8 +40,9 @@ class Emitter : public Nan::ObjectWrap {
     std::vector<v8::Local<v8::Value> > converted_args = { args..., };
 
     if (m.find(name) != m.end()) {
+      std::vector<internal::CopyablePersistentType> cb_vec_copy = m[name];
       for (std::vector<internal::CopyablePersistentType>::iterator
-        it = m[name].begin(); it != m[name].end(); ++it) {
+        it = cb_vec_copy.begin(); it != cb_vec_copy.end(); ++it) {
         node::MakeCallback(
           v8::Isolate::GetCurrent(), Nan::GetCurrentContext()->Global()
           , Nan::New(*it)
@@ -49,8 +50,9 @@ class Emitter : public Nan::ObjectWrap {
       }
     }
     if (o.find(name) != o.end()) {
+      std::vector<internal::CopyablePersistentType> cb_vec_copy = o[name];
       for (std::vector<internal::CopyablePersistentType>::iterator
-        it = o[name].begin(); it != o[name].end(); ++it) {
+        it = cb_vec_copy.begin(); it != cb_vec_copy.end(); ++it) {
         node::MakeCallback(
           v8::Isolate::GetCurrent(), Nan::GetCurrentContext()->Global()
           , Nan::New(*it)
