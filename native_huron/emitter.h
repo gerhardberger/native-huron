@@ -37,26 +37,27 @@ class Emitter : public Nan::ObjectWrap {
     v8::String::Utf8Value name_(eventName->ToString());
     std::string name = std::string(*name_);
 
-    if (m[name].empty() && o[name].empty()) return;
-
     std::vector<v8::Local<v8::Value> > converted_args = { args..., };
 
-    for (std::vector<internal::CopyablePersistentType>::iterator
-      it = m[name].begin(); it != m[name].end(); ++it) {
+    if (m.find(name) != m.end()) {
+      for (std::vector<internal::CopyablePersistentType>::iterator
+        it = m[name].begin(); it != m[name].end(); ++it) {
         node::MakeCallback(
           v8::Isolate::GetCurrent(), Nan::GetCurrentContext()->Global()
-        , Nan::New(*it)
-        , converted_args.size(), &converted_args.front());
+          , Nan::New(*it)
+          , converted_args.size(), &converted_args.front());
+      }
     }
-
-    for (std::vector<internal::CopyablePersistentType>::iterator
-      it = o[name].begin(); it != o[name].end(); ++it) {
+    if (o.find(name) != o.end()) {
+      for (std::vector<internal::CopyablePersistentType>::iterator
+        it = o[name].begin(); it != o[name].end(); ++it) {
         node::MakeCallback(
           v8::Isolate::GetCurrent(), Nan::GetCurrentContext()->Global()
-        , Nan::New(*it)
-        , converted_args.size(), &converted_args.front());
+          , Nan::New(*it)
+          , converted_args.size(), &converted_args.front());
+      }
+      o[name].clear();
     }
-    o[name].clear();
   }
 
   template<typename... Args>
@@ -117,16 +118,23 @@ class Emitter : public Nan::ObjectWrap {
     Nan::Persistent<v8::Function> persistent_cb;
     persistent_cb.Reset(cb);
 
-    for (std::vector<internal::CopyablePersistentType>::iterator
-      it = emitter->m[eventName].begin(); it != emitter->m[eventName].end();) {
-        if(Nan::New(*it) == persistent_cb) emitter->m[eventName].erase(it);
-        else it++;
+    if (emitter->m.find(eventName) != emitter->m.end()) {
+      for (std::vector<internal::CopyablePersistentType>::iterator
+        it = emitter->m[eventName].begin(); it != emitter->m[eventName].end();) {
+        if (Nan::New(*it) == persistent_cb)
+          it = emitter->m[eventName].erase(it);
+        else
+          ++it;
+      }
     }
-
-    for (std::vector<internal::CopyablePersistentType>::iterator
-      it = emitter->o[eventName].begin(); it != emitter->o[eventName].end();) {
-        if(Nan::New(*it) == persistent_cb) emitter->o[eventName].erase(it);
-        else it++;
+    if (emitter->o.find(eventName) != emitter->o.end()) {
+      for (std::vector<internal::CopyablePersistentType>::iterator
+        it = emitter->o[eventName].begin(); it != emitter->o[eventName].end();) {
+        if (Nan::New(*it) == persistent_cb)
+          it = emitter->o[eventName].erase(it);
+        else
+          ++it;
+      }
     }
   }
   
@@ -139,16 +147,23 @@ class Emitter : public Nan::ObjectWrap {
     Nan::Persistent<v8::Function> persistent_cb;
     persistent_cb.Reset(cb);
 
-    for (std::vector<internal::CopyablePersistentType>::iterator
-      it = this->m[eventName].begin(); it != this->m[eventName].end();) {
-        if(Nan::New(*it) == persistent_cb) this->m[eventName].erase(it);
-        else it++;
+    if (m.find(eventName) != m.end()) {
+      for (std::vector<internal::CopyablePersistentType>::iterator
+        it = this->m[eventName].begin(); it != this->m[eventName].end();) {
+        if (Nan::New(*it) == persistent_cb)
+          it = this->m[eventName].erase(it);
+        else
+          ++it;
+      }
     }
-
-    for (std::vector<internal::CopyablePersistentType>::iterator
-      it = this->o[eventName].begin(); it != this->o[eventName].end();) {
-        if(Nan::New(*it) == persistent_cb) this->o[eventName].erase(it);
-        else it++;
+    if (o.find(eventName) != o.end()) {
+      for (std::vector<internal::CopyablePersistentType>::iterator
+        it = this->o[eventName].begin(); it != this->o[eventName].end();) {
+        if (Nan::New(*it) == persistent_cb)
+          it = this->o[eventName].erase(it);
+        else
+          ++it;
+      }
     }
   }
   
@@ -212,13 +227,8 @@ class Emitter : public Nan::ObjectWrap {
   }
   
   void RemoveAllListeners (std::string eventName) {
-    if (this->m.find(eventName) != this->m.end()) {
-      this->m.erase(eventName);
-    }
-    
-    if (this->o.find(eventName) != this->o.end()) {
-      this->o.erase(eventName);
-    }
+    this->m.erase(eventName);
+    this->o.erase(eventName);
   }
   
   static void RemoveAllListeners (
@@ -230,14 +240,9 @@ class Emitter : public Nan::ObjectWrap {
     } else {
       v8::String::Utf8Value name(info[0]->ToString());
       std::string eventName = std::string(*name);
-  
-      if (emitter->m.find(eventName) != emitter->m.end()) {
-        emitter->m.erase(eventName);
-      }
-      
-      if (emitter->o.find(eventName) != emitter->o.end()) {
-        emitter->o.erase(eventName);
-      }
+
+      emitter->m.erase(eventName);
+      emitter->o.erase(eventName);
     }
   }
   
