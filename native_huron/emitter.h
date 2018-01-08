@@ -253,6 +253,34 @@ class Emitter : public Nan::ObjectWrap {
     o.clear();
   }
 
+  static void ListenerCount(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+    if (!info[0]->IsString())
+      return;
+    Emitter* emitter = ObjectWrap::Unwrap<Emitter>(info.Holder());
+    size_t counter = 0;
+    v8::String::Utf8Value name(info[0]->ToString());
+    std::string eventName = std::string(*name);
+
+    if (emitter->m.find(eventName) != emitter->m.end()) {
+      counter += emitter->m[eventName].size();
+    }
+    if (emitter->o.find(eventName) != emitter->o.end()) {
+      counter += emitter->o[eventName].size();
+    }
+    info.GetReturnValue().Set(static_cast<unsigned int>(counter));
+  }
+
+  size_t ListenerCount(const std::string& eventName) {
+    size_t counter = 0;
+    if (m.find(eventName) != m.end()) {
+      counter += m[eventName].size();
+    }
+    if (o.find(eventName) != o.end()) {
+      counter += o[eventName].size();
+    }
+    return counter;
+  }
+
  private:
   std::map<std::string, std::vector<internal::CopyablePersistentType> > m;
   std::map<std::string, std::vector<internal::CopyablePersistentType> > o;
