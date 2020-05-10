@@ -199,12 +199,13 @@ struct Converter<std::vector<T> > {
     if (!val->IsArray())
       return false;
 
+    Local<Context> context = Nan::GetCurrentContext();
     std::vector<T> result;
     v8::Local<v8::Array> array(v8::Local<v8::Array>::Cast(val));
     uint32_t length = array->Length();
     for (uint32_t i = 0; i < length; ++i) {
       T item;
-      if (!Converter<T>::FromV8(isolate, array->Get(i), &item))
+      if (!Converter<T>::FromV8(isolate, array->Get(context, i).ToLocalChecked(), &item))
         return false;
       result.push_back(item);
     }
@@ -233,12 +234,13 @@ struct Converter<std::set<T> > {
     if (!val->IsArray())
       return false;
 
+    Local<Context> context = Nan::GetCurrentContext();
     std::set<T> result;
     v8::Local<v8::Array> array(v8::Local<v8::Array>::Cast(val));
     uint32_t length = array->Length();
     for (uint32_t i = 0; i < length; ++i) {
       T item;
-      if (!Converter<T>::FromV8(isolate, array->Get(i), &item))
+      if (!Converter<T>::FromV8(isolate, array->Get(context, i).ToLocalChecked(), &item))
         return false;
       result.push_back(item);
     }

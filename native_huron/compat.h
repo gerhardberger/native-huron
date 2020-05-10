@@ -20,13 +20,13 @@
 #define HURON_METHOD_RETURN(value)       args.Return(value)
 
 #define HURON_STRING_NEW(isolate, data) \
-    v8::String::NewFromUtf8(isolate, data, v8::String::kNormalString)
+    v8::String::NewFromUtf8(isolate, data, v8::NewStringType::kNormal).ToLocalChecked()
 #define HURON_STRING_NEW_FROM_UTF8(isolate, data, length) \
-    v8::String::NewFromUtf8(isolate, data, v8::String::kNormalString, length)
+    v8::String::NewFromUtf8(isolate, data, v8::NewStringType::kNormal, length).ToLocalChecked()
 #define HURON_STRING_NEW_FROM_UTF16(isolate, data, length) \
-    v8::String::NewFromTwoByte(isolate, data, v8::String::kNormalString, length)
+    v8::String::NewFromTwoByte(isolate, data, v8::NewStringType::kNormal, length).ToLocalChecked()
 #define HURON_STRING_NEW_SYMBOL(isolate, data, length) \
-    v8::String::NewFromUtf8(isolate, data, v8::String::kInternalizedString, length)
+    v8::String::NewFromUtf8(isolate, data, v8::NewStringType::kInternalized, length).ToLocalChecked()
 
 #define HURON_UNDEFINED(isolate) v8::Undefined(isolate)
 #define HURON_TRUE(isolate) v8::True(isolate)
@@ -82,7 +82,7 @@
 #define HURON_STRING_NEW_FROM_UTF8(isolate, data, length) \
     v8::String::New(data, length)
 #define HURON_STRING_NEW_FROM_UTF16(isolate, data, length) \
-    v8::String::NewFromTwoByte(data, v8::String::kNormalString, length)
+    v8::String::NewFromTwoByte(data, v8::NewStringType::kNormal, length)
 #define HURON_STRING_NEW_SYMBOL(isolate, data, length) \
     v8::String::NewSymbol(data, length)
 
